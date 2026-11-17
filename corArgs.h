@@ -17,3 +17,4 @@
 #include "corArgs/corArgsAdd.h"
 #include "corArgs/corArgsUsage.h"
 #include "corArgs/corArgsBuiltins.h"
+#include "corArgs/corArgsDuration.h"

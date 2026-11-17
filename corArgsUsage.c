@@ -17,6 +17,7 @@
 #include "corArgs/CorArgInfo.h"        // CorArgInfo
 #include "corArgs/corArgsGlobals.h"    // corArgsProgName, etc
 #include "corArgs/corArgsBuiltins.h"   // corArgsBuiltins
+#include "corArgs/corArgsDuration.h"   // corArgsDurationText
 #include "corArgs/corArgsInit.h"       // corArgInfoV
 #include "corArgs/corArgsUsage.h"      // Own interface
 
@@ -208,6 +209,7 @@ static char* typeName(CorArgType type)
   case CorArgShort:   return "Short";
   case CorArgUShort:  return "UShort";
   case CorArgInt:     return "Int";
+  case CorArgDuration: return "Duration";
   case CorArgUInt:    return "UInt";
   case CorArgLong:    return "Long";
   case CorArgULong:   return "ULong";
@@ -262,6 +264,7 @@ static const char* defaultValue(CorArgInfo* infoP, char* buf, int bufSize)
   case CorArgShort:  snprintf(buf, bufSize, "%d",   (int) (short) (long long) def);                     break;
   case CorArgUShort: snprintf(buf, bufSize, "%u",   (unsigned int) (unsigned short) (long long) def);   break;
   case CorArgInt:    snprintf(buf, bufSize, "%d",   (int) (long long) def);                             break;
+  case CorArgDuration: corArgsDurationText((long long) def, buf, bufSize);                              break;
   case CorArgUInt:   snprintf(buf, bufSize, "%u",   (unsigned int) (long long) def);                    break;
   case CorArgLong:   snprintf(buf, bufSize, "%lld", (long long) def);                                   break;
   case CorArgULong:  snprintf(buf, bufSize, "%llu", (unsigned long long) def);                          break;

@@ -96,6 +96,7 @@ CorArgsStatus corArgsAdd(CorArg* kargV)
     case CorArgShort: *((short*)              kargP->valueP) = (short) (long long) kargP->def;    break;
     case CorArgUShort:    *((unsigned short*)     kargP->valueP) = (unsigned short) (long long) kargP->def;  break;
     case CorArgInt:   *((int*)                kargP->valueP) = (int)   (long long) kargP->def;    break;
+    case CorArgDuration: *((int*)             kargP->valueP) = (int)   (long long) kargP->def;    break;
     case CorArgUInt:  *((unsigned int*)       kargP->valueP) = (unsigned int)   (long long) kargP->def;  break;
     case CorArgLong:  *((long long*)          kargP->valueP) = (long long) kargP->def;            break;
     case CorArgULong: *((unsigned long long*) kargP->valueP) = (unsigned long long) kargP->def;   break;

@@ -51,6 +51,7 @@
 #include "corArgs/CorArgType.h"        // CorArgType, CorArgValueFrom
 #include "corArgs/CorArgSort.h"        // CorArgSort
 #include "corArgs/CorArg.h"            // CorArg
+#include "corArgs/corArgsDuration.h"   // corArgsDurationParse, corArgsDurationText
 #include "corArgs/corArgsInit.h"       // corArgInfoV
 #include "corArgs/corArgsConfig.h"     // Config vars
 #include "corArgs/corArgsUsage.h"      // corArgsUsage
@@ -192,7 +193,7 @@ static CorArgsStatus minMaxValueCheck(CorArgInfo* kargP, long long intValue, uns
     corArgsSay("%s: value %lld out of range for an int16 option (%s)\n", corArgsProgName, intValue, kargP->longName);
     return CorArgsOutOfBounds;
   }
-  else if ((kargP->type == CorArgInt32) && ((intValue < MIN_INT) || (intValue > MAX_INT)))
+  else if (((kargP->type == CorArgInt32) || (kargP->type == CorArgDuration)) && ((intValue < MIN_INT) || (intValue > MAX_INT)))
   {
     corArgsSay("%s: value %lld out of range for an int32 option (%s)\n", corArgsProgName, intValue, kargP->longName);
     return CorArgsOutOfBounds;
@@ -227,6 +228,39 @@ static CorArgsStatus minMaxValueCheck(CorArgInfo* kargP, long long intValue, uns
 //
 CorArgsStatus limitCheck(CorArgInfo* kargP, long long intValue, unsigned long long uintValue, float floatValue, char* stringValue)
 {
+  //
+  // A duration: its limits said as durations - "Allowed range: PT0S-P365D", not 0-31536000
+  //
+  if (kargP->type == CorArgDuration)
+  {
+    char v[64], lo[64], hi[64];
+
+    corArgsDurationText(intValue, v, sizeof(v));
+    if ((kargP->min != CORARGS_NL) && (intValue < (long long) kargP->min))
+    {
+      corArgsDurationText((long long) kargP->min, lo, sizeof(lo));
+      if (kargP->max != CORARGS_NL)
+        corArgsSay("%s: value %s for option '%s' is inferior to its lower limit. Allowed range: %s-%s\n", corArgsProgName, v, kargP->longName, lo,
+                   corArgsDurationText((long long) kargP->max, hi, sizeof(hi)));
+      else
+        corArgsSay("%s: value %s for option '%s' is inferior to %s, its lower limit\n", corArgsProgName, v, kargP->longName, lo);
+      return CorArgsIntOutOfMinLimit;
+    }
+
+    if ((kargP->max != CORARGS_NL) && (intValue > (long long) kargP->max))
+    {
+      corArgsDurationText((long long) kargP->max, hi, sizeof(hi));
+      if (kargP->min != CORARGS_NL)
+        corArgsSay("%s: value %s for option '%s' exceeds its upper limit. Allowed range: %s-%s\n", corArgsProgName, v, kargP->longName,
+                   corArgsDurationText((long long) kargP->min, lo, sizeof(lo)), hi);
+      else
+        corArgsSay("%s: value %s for option '%s' exceeds %s, its upper limit\n", corArgsProgName, v, kargP->longName, hi);
+      return CorArgsIntOutOfMaxLimit;
+    }
+
+    return CorArgsOk;
+  }
+
   if (kargP->min != CORARGS_NL)
   {
     if ((kargP->type == CorArgInt8) ||(kargP->type == CorArgInt16) ||(kargP->type == CorArgInt32) ||(kargP->type == CorArgInt64))
@@ -480,6 +514,23 @@ CorArgsStatus corArgsValueSet(CorArgInfo* kargP, const char* valueText)
     if ((ks = limitCheck(kargP, intValue, uintValue, floatValue, stringValue)) != CorArgsOk)
       return ks;
   }
+  else if (kargP->type == CorArgDuration)
+  {
+    const char* why = NULL;
+
+    if (corArgsDurationParse(valueText, &intValue, &why) == false)
+    {
+      corArgsSay("%s: invalid value '%s' for duration option '%s': %s\n", corArgsProgName, valueText, kargP->longName, why);
+      return CorArgsInvalidValue;
+    }
+    uintValue = (unsigned long long) intValue;
+
+    if ((ks = minMaxValueCheck(kargP, intValue, uintValue)) != CorArgsOk)
+      return ks;
+
+    if ((ks = limitCheck(kargP, intValue, uintValue, floatValue, stringValue)) != CorArgsOk)
+      return ks;
+  }
   else
   {
     int base = 10;
@@ -552,6 +603,7 @@ CorArgsStatus corArgsValueSet(CorArgInfo* kargP, const char* valueText)
   else if (kargP->type == CorArgInt16)    *((short*)              kargP->valueP) = (short)              intValue;
   else if (kargP->type == CorArgUInt16)   *((unsigned short*)     kargP->valueP) = (unsigned short)     uintValue;
   else if (kargP->type == CorArgInt32)    *((int*)                kargP->valueP) = (int)                intValue;
+  else if (kargP->type == CorArgDuration) *((int*)                kargP->valueP) = (int)                intValue;
   else if (kargP->type == CorArgUInt32)   *((unsigned int*)       kargP->valueP) = (unsigned int)       uintValue;
   else if (kargP->type == CorArgInt64)    *((long long*)          kargP->valueP) = (long long)          intValue;
   else if (kargP->type == CorArgUInt64)   *((unsigned long long*) kargP->valueP) = (unsigned long long) uintValue;

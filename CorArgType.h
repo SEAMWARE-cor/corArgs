@@ -55,7 +55,12 @@ typedef enum CorArgType
   CorArgULong,
   CorArgUInt64  = CorArgULong,
   CorArgSeparator,
-  CorArgEnd
+  CorArgEnd,
+
+  //
+  // After CorArgEnd, so no value above changes (a plugin built against the earlier header keeps working)
+  //
+  CorArgDuration    // an int of seconds - given as seconds ("3600") or as ISO 8601 ("PT1H", "P1D", "P7D")
 } CorArgType;
 
 #endif  // CORARGS_CORARGTYPE_H_
