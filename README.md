@@ -71,6 +71,34 @@ CorArgFloat // float
 CorArgString    // char*
 ```
 
+#### CorArgDuration - seconds, written as people read them
+
+An `int` of seconds, as `CorArgInt` (default, min and max in seconds too), but the value can also be given as an
+ISO 8601 duration - on the command line, in the environment, the same:
+
+| Given | Seconds |
+|---|---|
+| `3600` | 3600 (plain seconds, as an Int) |
+| `PT30S` · `PT15M` · `PT12H` | 30 · 900 · 43200 |
+| `P1D` · `P7D` · `P2W` | 86400 · 604800 · 1209600 |
+| `P1DT12H30M` | 131400 |
+
+`P[nW][nD][T[nH][nM][nS]]`: whole numbers, the designators in that order, upper or lower case. Years and months
+are refused - they have no fixed length (`P1M` is a month: a minute is `PT1M`). The extended usage shows the type
+`Duration` and the default as a duration; a value outside the limits is said as durations
+(`Allowed range: PT1M-P365D`).
+
+```c
+static int renew;
+{ "--renew-interval", "-ri", CorArgDuration, &renew, CorArgOpt, _vp 3600, _vp 0, _vp 31536000, "how often (PT1H, P1D)" },
+```
+
+`corArgsDurationParse(text, &seconds, &why)` and `corArgsDurationText(seconds, buf, size)` (`corArgsDuration.h`)
+are the conversions themselves - for a duration read elsewhere, or shown.
+
+`CorArgDuration` comes after `CorArgEnd` in the enum: no earlier value changed, a plugin built against the
+previous header keeps working.
+
 ### Functions
 
 #### corArgsInit

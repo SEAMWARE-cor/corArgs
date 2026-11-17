@@ -110,6 +110,7 @@ static bool outOfBound
     break;
 
   case CorArgInt:
+  case CorArgDuration:
     COR_LIB_V("sVal:    %lld", sVal);
     COR_LIB_V("INT_MIN: %d", INT_MIN);
     COR_LIB_V("INT_MAX: %d", INT_MAX);
@@ -433,6 +434,7 @@ static CorArgsStatus corArgVectorCheck(CorArg* kiV)
     case CorArgChar:
     case CorArgShort:
     case CorArgInt:
+    case CorArgDuration:
     case CorArgLong:
       if ((sMin != CORARGS_NL_NUMBER) && (sDef < sMin))
       {
@@ -504,6 +506,7 @@ static CorArgsStatus corArgVectorCheck(CorArg* kiV)
     case CorArgChar:
     case CorArgShort:
     case CorArgInt:
+    case CorArgDuration:
     case CorArgLong:
       if (sMin > sMax)
       {
@@ -559,7 +562,7 @@ static CorArgsStatus corArgVectorCheck(CorArg* kiV)
   {
     char* name   = (kiV[ix].longName == NULL)? (char*) kiV[ix].shortName : (char*) kiV[ix].longName;
 
-    if ((kiV[ix].type < CorArgBool) || (kiV[ix].type > CorArgEnd))
+    if ((kiV[ix].type < CorArgBool) || (kiV[ix].type > CorArgDuration))    // CorArgDuration: the last, after CorArgEnd
     {
       CORARGS_ERROR_PUSH(name, CorArgsBadParam, "Invalid 'type' for option");
       return CorArgsBadParam;
@@ -675,6 +678,7 @@ static CorArgsStatus defaultValues(CorArgInfo* kiV)
       break;
 
     case CorArgInt32:
+    case CorArgDuration:
       *((int*) kargP->valueP) = (int) (long long) kargP->def;
       break;
 

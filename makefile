@@ -36,6 +36,7 @@ LIB_SOURCES   = corArgsConfig.c      \
                 corArgsInit.c        \
                 corArgsAdd.c         \
                 corArgsSecret.c      \
+                corArgsDuration.c    \
                 CorArgsError.c       \
                 corArgsStatus.c      \
                 corArgsVersion.c
@@ -83,7 +84,15 @@ limitsTest: $(OBJDIR)/$(LIB)
 	$(CC) $(CFLAGS) -o $(OBJDIR)/limitsTest test/limitsTest.c $(OBJDIR)/$(LIB) $(TEST_LIBS) -lpthread
 	test/limitsTest.sh $(OBJDIR)/limitsTest
 
-.PHONY: envTest parseTest limitsTest
+#
+# durationTest - a CorArgDuration option: seconds or ISO 8601 (PT12H, P1D), its limits said as durations
+# (test/durationTest.c, run by test/durationTest.sh)
+#
+durationTest: $(OBJDIR)/$(LIB)
+	$(CC) $(CFLAGS) -o $(OBJDIR)/durationTest test/durationTest.c $(OBJDIR)/$(LIB) $(TEST_LIBS) -lpthread
+	test/durationTest.sh $(OBJDIR)/durationTest
+
+.PHONY: envTest parseTest limitsTest durationTest
 
 #
 # The archive and the shared library are built PER FLAVOUR, in $(OBJDIR), and then STAGED to the repo
